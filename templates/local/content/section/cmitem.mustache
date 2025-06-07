@@ -1,3 +1,20 @@
+        <span>
+            <strong>{{instancename}}</strong>
+            {{#tags}}
+                <span style="
+                    background-color: #e0f0ff;
+                    color: #004080;
+                    font-size: 0.75rem;
+                    padding: 2px 6px;
+                    margin-left: 0px;
+                    border-radius: 4px;
+                    display: inline-block;
+                    vertical-align: middle;
+                ">{{.}}</span>
+            {{/tags}}
+        </span>
+
+
 {{< core_courseformat/local/content/section/cmitem }}
 
     {{$ core_courseformat/local/content/cm/icon }}
@@ -6,11 +23,9 @@
         {{/activityicon}}
     {{/ core_courseformat/local/content/cm/icon }}
 
-    {{$ core_courseformat/local/content/cm/afterLink }}
-        {{#tags}}
-            <span class="badge badge-info">{{.}}</span>
-        {{/tags}}
-    {{/ core_courseformat/local/content/cm/afterLink }}
-
 {{/ core_courseformat/local/content/section/cmitem }}
+
+
+
+
 
