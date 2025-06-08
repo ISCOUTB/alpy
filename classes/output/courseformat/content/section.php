@@ -6,6 +6,8 @@ use renderer_base;
 use stdClass;
 use core_courseformat\output\local\content\cm;
 use context_course;
+use core_course\output\section_renderer;
+use moodle_url;
 
 class section extends core_section {
 
@@ -13,15 +15,17 @@ class section extends core_section {
 
 
   public function export_for_template(renderer_base $output): stdClass {
-        global $USER, $DB;
+        global $USER, $DB, $PAGE;
 
         $format = $this->format;
         $course = $format->get_course();
         $section = $this->section;
+        $summary = new $this->summaryclass($format, $section);
 
 
 
         $modinfo = get_fast_modinfo($course);
+        $sectioninfo = $modinfo->get_section_info($section->section);
         $allcms = $modinfo->get_cms();
 
         $cms = array_filter($allcms, function($mod) use ($section) {
@@ -103,28 +107,50 @@ class section extends core_section {
     $modules[] = (object)[ 'content' => $renderedcm ];
     }
 
+    $data = (object)[
+        'num' => $section->section ?? '0',
+        'id' => $section->id,
+        'sectionreturnnum' => $format->get_sectionnum(),
+        'insertafter' => false,
+        'summary' => $summary->export_for_template($output),
+        'highlightedlabel' => $format->get_section_highlighted_name(),
+        'sitehome' => $course->id == SITEID,
+        'editing' => $PAGE->user_is_editing(),
+        'displayonesection' => ($course->id != SITEID && $format->get_sectionid() == $section->id),
+        'sectionname' => $format->get_section_name($section),
+    ];
+
+    $haspartials = [];
+    $haspartials['availability'] = $this->add_availability_data($data, $output);
+    $haspartials['visibility'] = $this->add_visibility_data($data, $output);
+    $haspartials['editor'] = $this->add_editor_data($data, $output);
+    $haspartials['header'] = $this->add_header_data($data, $output); 
+    $haspartials['content'] = true;
+    $this->add_format_data($data, $haspartials, $output);
+    $data->cms = $modules;
+    $data->title = get_section_name($course, $section);
+    $header = new \stdClass();
+    $header->id = $section->id;
+    $header->title = get_section_name($course, $section);
+    $header->name = get_section_name($course, $section); // Texto sin HTML
+    $header->url = new \moodle_url('/course/view.php', [
+        'id' => $course->id,
+        'section' => $section->section
+    ]);
+    $header->ishidden = !$sectioninfo->visible;
+    $header->headinglevel = 3; // O el nivel que estés usando
+    $header->displayonesection = false;
+    $header->sitehome = false;
+    $header->contentcollapsed = false;
+    $header->editing = $PAGE->user_is_editing(); // O según la lógica del formato
+ 
+
+    $addsection = new \core_courseformat\output\local\content\addsection($format);
+    $data->numsections = $addsection->export_for_template($output);
 
 
-        $data = new stdClass();
-        $data->cms = $modules;
-        $data->id = $section->id;
-        $data->num = $section->section;
+    $data->header = $header;
 
-        $haspartials = [];
-        $haspartials['availability'] = $this->add_availability_data($data, $output);
-        $haspartials['visibility'] = $this->add_visibility_data($data, $output);
-        $haspartials['editor'] = $this->add_editor_data($data, $output);
-        $haspartials['header'] = $this->add_header_data($data, $output);
-        
-        $haspartials['content'] = true;
-        $this->add_format_data($data, $haspartials, $output);
-
-        $data->title = get_section_name($course, $section);
-        $data->summary = format_text($section->summary, $section->summaryformat, ['context' => context_course::instance($course->id)]);
-        $data->sectionreturn = $sectionreturn ?? 0;
-        $data->sectionid = $section->id;
-        $data->expanded = true;
-        $data->hasactivitiestoggle = true; // o alguna lógica condicional
 
 
         
@@ -136,7 +162,10 @@ class section extends core_section {
   public function get_template_name(\renderer_base $output): string {
    
     return 'format_alpy/local/content/section';
-}
+  }
+
+
+
 
 
 
