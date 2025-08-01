@@ -28,7 +28,7 @@
  * @param int $oldversion the version we are upgrading from
  * @return bool result
  */
-function xmldb_format_weeks_upgrade($oldversion) {
+function xmldb_format_alpy_upgrade($oldversion) {
     global $CFG, $DB;
 
     // Automatically generated Moodle v4.1.0 release upgrade line.
