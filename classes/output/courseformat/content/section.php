@@ -110,13 +110,13 @@ class section extends core_section {
     $data = (object)[
         'num' => $section->section ?? '0',
         'id' => $section->id,
-        'sectionreturnnum' => $format->get_sectionnum(),
+        'sectionreturnnum' => $format->get_section_number(),
         'insertafter' => false,
         'summary' => $summary->export_for_template($output),
         'highlightedlabel' => $format->get_section_highlighted_name(),
         'sitehome' => $course->id == SITEID,
         'editing' => $PAGE->user_is_editing(),
-        'displayonesection' => ($course->id != SITEID && $format->get_sectionid() == $section->id),
+        'displayonesection' => ($course->id != SITEID && $format->get_section_number() == $section->section),
         'sectionname' => $format->get_section_name($section),
     ];
 
