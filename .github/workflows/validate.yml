@@ -1,0 +1,167 @@
+name: Plugin Validation
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+
+jobs:
+  validate-plugin:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Validate Moodle plugin structure
+      run: |
+        echo "🔍 Validating Moodle plugin structure..."
+        
+        # Check required files
+        required_files=(
+          "version.php"
+          "lib.php"
+          "settings.php"
+          "lang/en/format_alpy.php"
+          "classes/output/renderer.php"
+        )
+        
+        missing_files=()
+        for file in "${required_files[@]}"; do
+          if [[ ! -f "$file" ]]; then
+            missing_files+=("$file")
+            echo "❌ Missing: $file"
+          else
+            echo "✅ Found: $file"
+          fi
+        done
+        
+        if [[ ${#missing_files[@]} -gt 0 ]]; then
+          echo "❌ Validation failed. Missing required files."
+          exit 1
+        fi
+        
+        echo "✅ All required files present"
+    
+    - name: Validate version.php
+      run: |
+        echo "🔍 Validating version.php..."
+        
+        # Check plugin component
+        if ! grep -q "format_alpy" version.php; then
+          echo "❌ Plugin component name 'format_alpy' not found"
+          exit 1
+        fi
+        
+        # Check version format
+        if ! grep -q '\$plugin->version.*[0-9]\{10\}' version.php; then
+          echo "❌ Plugin version not in correct format (YYYYMMDDXX)"
+          exit 1
+        fi
+        
+        # Check requires field
+        if ! grep -q '\$plugin->requires' version.php; then
+          echo "❌ Moodle version requirement not specified"
+          exit 1
+        fi
+        
+        echo "✅ version.php validation passed"
+    
+    - name: Validate language files
+      run: |
+        echo "🔍 Validating language files..."
+        
+        # Check English language file
+        if [[ ! -f "lang/en/format_alpy.php" ]]; then
+          echo "❌ English language file missing"
+          exit 1
+        fi
+        
+        # Check for plugin name string
+        if ! grep -q "pluginname" lang/en/format_alpy.php; then
+          echo "❌ Plugin name string missing in English language file"
+          exit 1
+        fi
+        
+        # Check Spanish language file if exists
+        if [[ -f "lang/es/format_alpy.php" ]]; then
+          echo "✅ Spanish language file found"
+          if ! grep -q "pluginname" lang/es/format_alpy.php; then
+            echo "⚠️  Plugin name string missing in Spanish language file"
+          fi
+        fi
+        
+        echo "✅ Language files validation passed"
+    
+    - name: Check template files
+      run: |
+        echo "🔍 Checking template files..."
+        
+        template_dir="templates/local"
+        if [[ ! -d "$template_dir" ]]; then
+          echo "❌ Templates directory missing: $template_dir"
+          exit 1
+        fi
+        
+        # Count mustache files
+        mustache_count=$(find "$template_dir" -name "*.mustache" | wc -l)
+        echo "📄 Found $mustache_count Mustache template files"
+        
+        if [[ $mustache_count -eq 0 ]]; then
+          echo "⚠️  No Mustache templates found"
+        else
+          echo "✅ Template files found"
+        fi
+    
+    - name: Test archive creation
+      run: |
+        echo "🧪 Testing archive creation..."
+        
+        # Create test archive
+        mkdir -p test-build/alpy
+        rsync -av \
+          --exclude='.git*' \
+          --exclude='node_modules' \
+          --exclude='*.log' \
+          --exclude='*.tmp' \
+          --exclude='.DS_Store' \
+          --exclude='test-build' \
+          ./ test-build/alpy/
+        
+        cd test-build
+        zip -r ../test_format_alpy.zip alpy/ -x "*.DS_Store"
+        cd ..
+        
+        # Validate archive
+        if [[ ! -f "test_format_alpy.zip" ]]; then
+          echo "❌ Failed to create test archive"
+          exit 1
+        fi
+        
+        archive_size=$(du -h test_format_alpy.zip | cut -f1)
+        file_count=$(unzip -l test_format_alpy.zip | grep -E "^[[:space:]]*[0-9]+" | wc -l)
+        
+        echo "✅ Test archive created successfully"
+        echo "📏 Size: $archive_size"
+        echo "📁 Files: $file_count"
+        
+        # Cleanup
+        rm -rf test-build test_format_alpy.zip
+    
+    - name: Validation summary
+      run: |
+        echo "## ✅ Plugin Validation Completed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "The Alpy course format plugin has passed all validation checks:" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- 📁 **File Structure**: All required files present" >> $GITHUB_STEP_SUMMARY
+        echo "- 🔧 **Version File**: Correctly formatted" >> $GITHUB_STEP_SUMMARY
+        echo "- 🌐 **Language Files**: Valid language strings" >> $GITHUB_STEP_SUMMARY
+        echo "- 🎨 **Templates**: Mustache files found" >> $GITHUB_STEP_SUMMARY
+        echo "- 📦 **Archive**: Test build successful" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "The plugin is ready for release! 🚀" >> $GITHUB_STEP_SUMMARY

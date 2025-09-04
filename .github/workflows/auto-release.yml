@@ -1,0 +1,65 @@
+name: Auto Release on Version Update
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'version.php'
+
+jobs:
+  check-version-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for comparison
+    
+    - name: Extract version from version.php
+      id: extract_version
+      run: |
+        # Extract version from version.php
+        VERSION_LINE=$(grep '$plugin->version' version.php)
+        if [[ $VERSION_LINE =~ \$plugin-\>version[[:space:]]*=[[:space:]]*([0-9]+) ]]; then
+          VERSION_NUMBER="${BASH_REMATCH[1]}"
+          # Convert YYYYMMDDXX format to semantic version
+          YEAR=${VERSION_NUMBER:0:4}
+          MONTH=${VERSION_NUMBER:4:2}
+          DAY=${VERSION_NUMBER:6:2}
+          PATCH=${VERSION_NUMBER:8:2}
+          SEMANTIC_VERSION="v${YEAR}.${MONTH}.${DAY}.${PATCH}"
+          echo "version_number=$VERSION_NUMBER" >> $GITHUB_OUTPUT
+          echo "semantic_version=$SEMANTIC_VERSION" >> $GITHUB_OUTPUT
+          echo "Found version: $VERSION_NUMBER -> $SEMANTIC_VERSION"
+        else
+          echo "Could not extract version from version.php"
+          exit 1
+        fi
+    
+    - name: Check if tag exists
+      id: check_tag
+      run: |
+        if git tag -l | grep -q "^${{ steps.extract_version.outputs.semantic_version }}$"; then
+          echo "tag_exists=true" >> $GITHUB_OUTPUT
+          echo "Tag ${{ steps.extract_version.outputs.semantic_version }} already exists"
+        else
+          echo "tag_exists=false" >> $GITHUB_OUTPUT
+          echo "Tag ${{ steps.extract_version.outputs.semantic_version }} does not exist"
+        fi
+    
+    - name: Create and push tag
+      if: steps.check_tag.outputs.tag_exists == 'false'
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag ${{ steps.extract_version.outputs.semantic_version }}
+        git push origin ${{ steps.extract_version.outputs.semantic_version }}
+        echo "Created and pushed tag: ${{ steps.extract_version.outputs.semantic_version }}"
+    
+    - name: Trigger release workflow
+      if: steps.check_tag.outputs.tag_exists == 'false'
+      run: |
+        echo "Tag created, release workflow will be triggered automatically"

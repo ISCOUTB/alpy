@@ -1,0 +1,44 @@
+# Development files
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node.js (if using for development tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PHP
+vendor/
+composer.lock
+
+# Moodle specific
+/config.php
+/moodledata/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files (except releases)
+*.zip
+*.tar.gz
+*.tar.bz2
+
+# Test coverage
+coverage/
+.phpunit.result.cache
+
+# Local development
+.env
+.env.local
