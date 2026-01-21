@@ -1,41 +1,111 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
- * This file contains main class for the course format Weeks
+ * Main library file for the alpy course format.
  *
- * @since     Moodle 2.0
- * @package   format_weeks
- * @copyright 2009 Sam Hemelryk
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    format_alpy
+ * @copyright  2026 SAVIO - Sistema de Aprendizaje Virtual Interactivo (UTB)
+ * @author     SAVIO Development Team
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot. '/course/format/lib.php');
 require_once($CFG->dirroot. '/course/lib.php');
 
-/**
- * Main class for the Weeks course format
- *
- * @package    format_weeks
- * @copyright  2012 Marina Glancy
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 class format_alpy extends core_courseformat\base {
+    /**
+     * Learning style weights for each resource type.
+     * Keys match filenames in /pix/ (e.g. reading.png -> 'reading').
+     * This is the single source of truth for resource scoring.
+     *
+     * @return array
+     */
+    public static function get_resource_weights(): array {
+        return [
+            'map'           => ['active' => 3, 'reflexive' => 1, 'sensitive' => 1, 'intuitive' => 1, 'visual' => 3, 'verbal' => 1, 'sequential' => 1, 'global' => 1],
+            'diagram'       => ['active' => 1, 'reflexive' => 1, 'sensitive' => 1, 'intuitive' => 1, 'visual' => 3, 'verbal' => 1, 'sequential' => 1, 'global' => 1],
+            'reading'       => ['active' => 3, 'reflexive' => 1, 'sensitive' => 2, 'intuitive' => 3, 'visual' => 2, 'verbal' => 3, 'sequential' => 2, 'global' => 3],
+            'audio'         => ['active' => 1, 'reflexive' => 1, 'sensitive' => 1, 'intuitive' => 1, 'visual' => 1, 'verbal' => 3, 'sequential' => 1, 'global' => 2],
+            'infographic'   => ['active' => 1, 'reflexive' => 1, 'sensitive' => 1, 'intuitive' => 1, 'visual' => 3, 'verbal' => 1, 'sequential' => 1, 'global' => 2],
+            'videotutorial' => ['active' => 2, 'reflexive' => 2, 'sensitive' => 2, 'intuitive' => 1, 'visual' => 3, 'verbal' => 2, 'sequential' => 3, 'global' => 1],
+            'conference'    => ['active' => 2, 'reflexive' => 2, 'sensitive' => 3, 'intuitive' => 3, 'visual' => 2, 'verbal' => 3, 'sequential' => 1, 'global' => 2],
+            'animation'     => ['active' => 1, 'reflexive' => 1, 'sensitive' => 2, 'intuitive' => 1, 'visual' => 2, 'verbal' => 1, 'sequential' => 2, 'global' => 3],
+            'simulation'    => ['active' => 2, 'reflexive' => 1, 'sensitive' => 3, 'intuitive' => 3, 'visual' => 3, 'verbal' => 1, 'sequential' => 2, 'global' => 2],
+            'presentation'  => ['active' => 2, 'reflexive' => 1, 'sensitive' => 2, 'intuitive' => 2, 'visual' => 3, 'verbal' => 1, 'sequential' => 3, 'global' => 2],
+            'journal'       => ['active' => 1, 'reflexive' => 3, 'sensitive' => 1, 'intuitive' => 1, 'visual' => 1, 'verbal' => 1, 'sequential' => 1, 'global' => 1],
+            'research'      => ['active' => 3, 'reflexive' => 3, 'sensitive' => 1, 'intuitive' => 3, 'visual' => 1, 'verbal' => 1, 'sequential' => 1, 'global' => 1],
+            'coding'        => ['active' => 2, 'reflexive' => 2, 'sensitive' => 3, 'intuitive' => 2, 'visual' => 2, 'verbal' => 2, 'sequential' => 2, 'global' => 2],
+            'debate'        => ['active' => 3, 'reflexive' => 2, 'sensitive' => 2, 'intuitive' => 1, 'visual' => 1, 'verbal' => 3, 'sequential' => 2, 'global' => 1],
+            'project'       => ['active' => 2, 'reflexive' => 2, 'sensitive' => 3, 'intuitive' => 1, 'visual' => 2, 'verbal' => 1, 'sequential' => 3, 'global' => 2],
+            'written'       => ['active' => 1, 'reflexive' => 1, 'sensitive' => 1, 'intuitive' => 1, 'visual' => 3, 'verbal' => 1, 'sequential' => 1, 'global' => 3],
+            'questionnaire' => ['active' => 3, 'reflexive' => 3, 'sensitive' => 1, 'intuitive' => 3, 'visual' => 1, 'verbal' => 1, 'sequential' => 1, 'global' => 1],
+            'quiz'          => ['active' => 3, 'reflexive' => 3, 'sensitive' => 1, 'intuitive' => 3, 'visual' => 1, 'verbal' => 1, 'sequential' => 1, 'global' => 1],
+        ];
+    }
 
+    /**
+     * Spanish to English tag aliases for backwards compatibility.
+     *
+     * @return array
+     */
+    public static function get_tag_aliases(): array {
+        return [
+            // Spanish -> English
+            'mapa'            => 'map',
+            'diagrama'        => 'diagram',
+            'lectura'         => 'reading',
+            'infografia'      => 'infographic',
+            'videoconferencia'=> 'conference',
+            'animacion'       => 'animation',
+            'simulacion'      => 'simulation',
+            'presentacion'    => 'presentation',
+            'diario'          => 'journal',
+            'busqueda'        => 'research',
+            'vpl'             => 'coding',
+            'proyecto'        => 'project',
+            'escrito'         => 'written',
+            'cuestionario'    => 'questionnaire',
+        ];
+    }
+
+    /**
+     * Resolve a tag name to its canonical English key.
+     * Accepts both English and Spanish tag names.
+     *
+     * @param string $tagname The raw tag name (e.g. 'lectura', 'reading', 'mapa')
+     * @return string|null The canonical English key or null if not found
+     */
+    public static function resolve_resource_key($tagname): ?string {
+        $tagname = \core_text::strtolower(trim($tagname));
+        $weights = self::get_resource_weights();
+        
+        // Direct match (English key)
+        if (array_key_exists($tagname, $weights)) {
+            return $tagname;
+        }
+        
+        // Check Spanish aliases
+        $aliases = self::get_tag_aliases();
+        if (isset($aliases[$tagname])) {
+            return $aliases[$tagname];
+        }
+
+        return null;
+    }
+
+    /**
+     * Backwards compatibility wrapper for get_resource_weights().
+     * @deprecated Use get_resource_weights() instead
+     * @return array
+     */
+    public static function get_resource_definitions(): array {
+        $weights = self::get_resource_weights();
+        $result = [];
+        foreach ($weights as $key => $scores) {
+            $result[$key] = ['scores' => $scores];
+        }
+        return $result;
+    }
 
     /**
      * Returns true if this course format uses sections
@@ -52,6 +122,27 @@ class format_alpy extends core_courseformat\base {
 
     public function uses_indentation(): bool {
         return (get_config('format_alpy', 'indentation')) ? true : false;
+    }
+
+    /**
+     * Returns the output class name for the specified type.
+     *
+     * @param string $type The output class type (e.g., 'content', 'content\\cm\\cmname')
+     * @return string The fully qualified class name
+     */
+    public function get_output_classname(string $type): string {
+        // Use our custom cmname class for activity names (includes custom icon logic)
+        if ($type === 'content\\cm\\cmname') {
+            return 'format_alpy\\output\\courseformat\\content\\cm\\cmname';
+        }
+
+        // Use custom cmlist class to reorder activities for students
+        if ($type === 'content\\section\\cmlist') {
+            return 'format_alpy\\output\\courseformat\\content\\section\\cmlist';
+        }
+        
+        // For other types, use parent implementation
+        return parent::get_output_classname($type);
     }
 
     /**
@@ -79,7 +170,7 @@ class format_alpy extends core_courseformat\base {
     }
 
     /**
-     * Returns the default section name for the weekly course format.
+     * Returns the default section name for the alpy course format.
      *
      * If the section number is 0, it will use the string with key = section0name from the course format's lang file.
      * Otherwise, the default format of "[start date] - [end date]" will be returned.
@@ -234,9 +325,9 @@ class format_alpy extends core_courseformat\base {
     }
 
     /**
-     * Definitions of the additional options that this course format uses for course
+     * Definitions of the additional options that this course format uses for course.
      *
-     * Weeks format uses the following options:
+     * Alpy format uses the following options:
      * - coursedisplay
      * - hiddensections
      * - automaticenddate
@@ -249,6 +340,10 @@ class format_alpy extends core_courseformat\base {
         if ($courseformatoptions === false) {
             $courseconfig = get_config('moodlecourse');
             $courseformatoptions = array(
+                'setup_mode' => array(
+                    'default' => 1,
+                    'type' => PARAM_INT,
+                ),
                 'hiddensections' => array(
                     'default' => $courseconfig->hiddensections,
                     'type' => PARAM_INT,
@@ -258,13 +353,25 @@ class format_alpy extends core_courseformat\base {
                     'type' => PARAM_INT,
                 ),
                 'automaticenddate' => array(
-                    'default' => 1,
+                    'default' => 0,
                     'type' => PARAM_BOOL,
                 ),
             );
         }
         if ($foreditform && !isset($courseformatoptions['coursedisplay']['label'])) {
             $courseformatoptionsedit = array(
+                'setup_mode' => array(
+                    'label' => new lang_string('setup_mode', 'format_alpy'),
+                    'help' => 'setup_mode',
+                    'help_component' => 'format_alpy',
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(
+                            1 => new lang_string('mode_academic', 'format_alpy'),
+                            0 => new lang_string('mode_manual', 'format_alpy')
+                        )
+                    ),
+                ),
                 'hiddensections' => array(
                     'label' => new lang_string('hiddensections'),
                     'help' => 'hiddensections',
@@ -311,14 +418,12 @@ class format_alpy extends core_courseformat\base {
      * @return array array of references to the added form elements.
      */
     public function create_edit_form_elements(&$mform, $forsection = false) {
-        global $COURSE;
+        global $COURSE, $PAGE;
         $elements = parent::create_edit_form_elements($mform, $forsection);
 
-        if (!$forsection && (empty($COURSE->id) || $COURSE->id == SITEID)) {
-            // Add "numsections" element to the create course form - it will force new course to be prepopulated
-            // with empty sections.
-            // The "Number of sections" option is no longer available when editing course, instead teachers should
-            // delete and add sections when needed.
+        if (!$forsection && (empty($COURSE->id) || $COURSE->id == SITEID) && !$mform->elementExists('numsections')) {
+            // Add "numsections" element only when creating a new course.
+            // For existing courses, sections should be managed from the course page.
             $courseconfig = get_config('moodlecourse');
             $max = (int)$courseconfig->maxsections;
             $element = $mform->addElement('select', 'numsections', get_string('numberweeks'), range(0, $max ?: 52));
@@ -329,16 +434,67 @@ class format_alpy extends core_courseformat\base {
             array_unshift($elements, $element);
         }
 
-        // Re-order things.
-        $mform->insertElementBefore($mform->removeElement('automaticenddate', false), 'idnumber');
-        $mform->disabledIf('enddate', 'automaticenddate', 'checked');
-        foreach ($elements as $key => $element) {
-            if ($element->getName() == 'automaticenddate') {
-                unset($elements[$key]);
+            // No manual reordering required: setup_mode is first in format options list.
+
+        // Force order: setup_mode first, numsections right after (when present).
+        if ($mform->elementExists('setup_mode') && $mform->elementExists('numsections') && $mform->elementExists('hiddensections')) {
+            $setup_mode_el = $mform->removeElement('setup_mode', false);
+            $numsections_el = $mform->removeElement('numsections', false);
+
+            if ($numsections_el) {
+                $mform->insertElementBefore($numsections_el, 'hiddensections');
+            }
+            if ($setup_mode_el) {
+                $mform->insertElementBefore($setup_mode_el, 'numsections');
             }
         }
 
-        return $elements;
+        // Hide numsections when academic mode is selected (only on new course form).
+        if ($mform->elementExists('numsections')) {
+            $mform->hideIf('numsections', 'setup_mode', 'eq', 1);
+        }
+
+        // Remove setup_mode from edit form (only show during course creation).
+        if (!empty($COURSE->id) && $COURSE->id != SITEID) {
+            $mform->removeElement('setup_mode');
+        }
+
+        // Disabled Rules
+        $mform->disabledIf('startdate', 'setup_mode', 'eq', 1);
+        $mform->disabledIf('enddate', 'automaticenddate', 'checked');
+
+        // Return only valid elements to avoid null dereferences.
+        $elements = array_values(array_filter($elements, function($el) {
+            return !empty($el) && is_object($el) && $el instanceof HTML_QuickForm_element;
+        }));
+
+        // Enforce order within format options: setup_mode first, then numsections (if present).
+        $byname = [];
+        foreach ($elements as $el) {
+            $name = $el->getName();
+            if ($mform->elementExists($name)) {
+                $byname[$name] = $el;
+            }
+        }
+
+        $ordered = [];
+        foreach (['setup_mode', 'numsections'] as $priorityname) {
+            if (isset($byname[$priorityname])) {
+                $ordered[] = $byname[$priorityname];
+            }
+        }
+        foreach ($elements as $el) {
+            $name = $el->getName();
+            if (!isset($byname[$name])) {
+                continue;
+            }
+            if (in_array($name, ['setup_mode', 'numsections'], true)) {
+                continue;
+            }
+            $ordered[] = $el;
+        }
+
+        return $ordered;
     }
 
     /**
@@ -357,6 +513,63 @@ class format_alpy extends core_courseformat\base {
     public function update_course_format_options($data, $oldcourse = null) {
         global $DB;
         $data = (array)$data;
+
+        // AUTO-CALCULATION LOGIC FOR ACADEMIC PERIODS
+        if (isset($data['setup_mode']) && $data['setup_mode'] == 1) { // 1 = Academic Mode (Auto)
+            $current_year = date('Y');
+            $current_month = date('n');
+
+            // Logic: If June (6) or later, assume Second Semester (Aug). Else First Semester (Feb).
+            if ($current_month >= 6) {
+                // Second semester: Starts first Monday of August
+                $start_month = 8; // August
+            } else {
+                // First semester: Starts first Monday of February
+                $start_month = 2; // February
+            }
+
+            // Calculate First Monday
+            $start_date_str = "first monday of " . date("F", mktime(0, 0, 0, $start_month, 10)) . " $current_year";
+            $start_timestamp = strtotime($start_date_str);
+
+            // Override data
+            $data['startdate'] = $start_timestamp;
+            $data['numsections'] = 16; // Fixed 16 weeks
+            // Do not force automatic end date; allow manual end date if desired.
+            
+            // NOTE: The actual creation of sections and DB updates for new courses 
+            // is handled by the course_created observer to avoid race conditions.
+            // For existing courses updates, we do it here if possible.
+            if (!empty($data['id'])) {
+                 // Only run this if we are SURE the record exists (update mode)
+                 // Check if record exists to avoid crash on new course creation flows
+                 if ($DB->record_exists('course', ['id' => $data['id']])) {
+                    $DB->set_field('course', 'startdate', $start_timestamp, ['id' => $data['id']]);
+                    rebuild_course_cache($data['id'], true);
+                    $course = $DB->get_record('course', ['id' => $data['id']]);
+                    course_create_sections_if_missing($course, range(1, 16));
+                    \format_alpy::update_end_date($data['id']); 
+                 }
+            }
+        } else {
+            // MANUAL MODE: Enforce start date to calculate to the NEXT Monday if not already a Monday
+            if (isset($data['startdate'])) {
+                 $startdate = $data['startdate'];
+                 // Check if the selected date is a Monday (1 = Monday in 'N' format)
+                 if (date('N', $startdate) != 1) {
+                     // It's not a Monday, move to next Monday
+                     $new_start = strtotime('next monday', $startdate);
+                     $data['startdate'] = $new_start;
+                     
+                     if (!empty($data['id']) && $DB->record_exists('course', ['id' => $data['id']])) {
+                         $DB->set_field('course', 'startdate', $new_start, ['id' => $data['id']]);
+                         rebuild_course_cache($data['id'], true);
+                         \format_alpy::update_end_date($data['id']);
+                     }
+                 }
+            }
+        }
+
         if ($oldcourse !== null) {
             $oldcourse = (array)$oldcourse;
             $options = $this->course_format_options();
@@ -365,6 +578,14 @@ class format_alpy extends core_courseformat\base {
                     if (array_key_exists($key, $oldcourse)) {
                         $data[$key] = $oldcourse[$key];
                     }
+                }
+            }
+            // If numsections provided, ensure all sections exist (do not delete any).
+            if (!empty($data['numsections']) && !empty($data['id']) && $DB->record_exists('course', ['id' => $data['id']])) {
+                $numsections = (int)$data['numsections'];
+                if ($numsections > 0) {
+                    $course = $DB->get_record('course', ['id' => $data['id']]);
+                    course_create_sections_if_missing($course, range(1, $numsections));
                 }
             }
         }
@@ -417,7 +638,7 @@ class format_alpy extends core_courseformat\base {
     }
 
     /**
-     * Returns true if the specified week is current
+     * Returns true if the specified section is current.
      *
      * @param int|stdClass|section_info $section
      * @return bool
@@ -449,7 +670,7 @@ class format_alpy extends core_courseformat\base {
     }
 
     /**
-     * Returns the default end date for weeks course format.
+     * Returns the default end date for alpy course format.
      *
      * @param moodleform $mform
      * @param array $fieldnames The form - field names mapping.
@@ -617,10 +838,28 @@ class format_alpy extends core_courseformat\base {
 function format_alpy_inplace_editable($itemtype, $itemid, $newvalue) {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/course/lib.php');
-    if ($itemtype === 'sectionname' || $itemtype === 'sectionnamenl') {
-        $section = $DB->get_record_sql(
-            'SELECT s.* FROM {course_sections} s JOIN {course} c ON s.course = c.id WHERE s.id = ? AND c.format = ?',
-            array($itemid, 'alpy'), MUST_EXIST);
-        return course_get_format($section->course)->inplace_editable_update_section_name($section, $itemtype, $newvalue);
+    
+    // SECURITY: Validate and sanitize inputs
+    $itemid = (int)$itemid;
+    if ($itemid <= 0) {
+        throw new \moodle_exception('invaliditemid', 'error');
     }
+    
+    // SECURITY: Only allow known item types
+    if ($itemtype !== 'sectionname' && $itemtype !== 'sectionnamenl') {
+        throw new \moodle_exception('invaliditemtype', 'error');
+    }
+    
+    // SECURITY: Sanitize newvalue - clean_param for text
+    $newvalue = clean_param($newvalue, PARAM_TEXT);
+    
+    $section = $DB->get_record_sql(
+        'SELECT s.* FROM {course_sections} s JOIN {course} c ON s.course = c.id WHERE s.id = ? AND c.format = ?',
+        [$itemid, 'alpy'], MUST_EXIST);
+    
+    // SECURITY: Verify user has capability to edit
+    $context = \context_course::instance($section->course);
+    require_capability('moodle/course:update', $context);
+    
+    return course_get_format($section->course)->inplace_editable_update_section_name($section, $itemtype, $newvalue);
 }
