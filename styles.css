@@ -1,0 +1,38 @@
+/**
+ * Styles for the alpy course format.
+ *
+ * @package    format_alpy
+ * @copyright  2026 SAVIO - Sistema de Aprendizaje Virtual Interactivo (UTB)
+ * @author     SAVIO Development Team
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* Custom activity icons */
+.alpy-custom-icon {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Ensure SVG icons scale properly */
+.activityicon.alpy-custom-icon,
+img.activityicon.alpy-custom-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+/* Accessibility improvements */
+.alpy-tag:hover {
+    background-color: #d0e8ff;
+    transition: background-color 0.2s ease;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .alpy-tag {
+        font-size: 0.7rem;
+        padding: 1px 4px;
+    }
+}
