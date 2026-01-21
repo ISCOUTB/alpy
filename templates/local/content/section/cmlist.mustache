@@ -1,4 +1,22 @@
-{{#cmlist}}
-    {{> format_alpy/local/content/section/cmitem }}
-{{/cmlist}}
-
+{{#showmovehere}}
+<p>{{movingstr}} (<a href="{{{cancelcopyurl}}}">{{#str}} cancel {{/str}}</a>)</p>
+{{/showmovehere}}
+<ul class="section m-0 p-0 img-text {{#hascms}} d-block {{/hascms}}" data-for="cmlist">
+{{#cms}}
+    {{#showmovehere}}
+    <li class="movehere">
+        <a href="{{{moveurl}}}" title="{{strmovefull}}" class="movehere"></a>
+    </li>
+    {{/showmovehere}}
+    {{#cmitem}}
+        {{$ core_courseformat/local/content/section/cmitem}}
+            {{> format_alpy/local/content/section/cmitem}}
+        {{/ core_courseformat/local/content/section/cmitem}}
+    {{/cmitem}}
+{{/cms}}
+{{#showmovehere}}
+    <li class="movehere">
+        <a href="{{{movetosectionurl}}}" title="{{strmovefull}}" class="movehere"></a>
+    </li>
+{{/showmovehere}}
+    </ul>
