@@ -1,31 +1,12 @@
-        <span>
-            <strong>{{instancename}}</strong>
-            {{#tags}}
-                <span style="
-                    background-color: #e0f0ff;
-                    color: #004080;
-                    font-size: 0.75rem;
-                    padding: 2px 6px;
-                    margin-left: 0px;
-                    border-radius: 4px;
-                    display: inline-block;
-                    vertical-align: middle;
-                ">{{.}}</span>
-            {{/tags}}
-        </span>
+{{!
+    @template format_alpy/local/content/section/cmitem
 
-
+    Displays a course module item in a section.
+    
+    We override the cmname block to use our custom renderer which includes the icon replacement logic.
+}}
 {{< core_courseformat/local/content/section/cmitem }}
-
-    {{$ core_courseformat/local/content/cm/icon }}
-        {{#activityicon}}
-            <img src="{{icon}}" alt="ícono personalizado" class="activityicon" style="width:24px;height:24px;">
-        {{/activityicon}}
-    {{/ core_courseformat/local/content/cm/icon }}
-
+    {{$ core_courseformat/local/content/cm/cmname }}
+        {{> format_alpy/local/content/cm/cmname }}
+    {{/ core_courseformat/local/content/cm/cmname }}
 {{/ core_courseformat/local/content/section/cmitem }}
-
-
-
-
-
