@@ -1,0 +1,37 @@
+{{!
+    @template format_alpy/local/content/cm/cmname
+    
+    Modified version of core_courseformat/local/content/cm/cmname to support alpy course format custom icons.
+    
+    Displays activity name with custom icon support from /pix/ directory.
+}}
+{{#url}}
+    <div class="activity-instance d-flex flex-column">
+        <div class="activitytitle media {{textclasses}} modtype_{{modname}} position-relative align-self-start">
+            <div class="activityiconcontainer {{purpose}} courseicon align-self-start mr-3">
+                {{#icondata.iscustom}}
+                    <img src="{{{icondata.url}}}" class="icon alpy-custom-icon" alt="{{icondata.alt}}" title="{{icondata.alt}}" style="width: 24px; height: 24px;" />
+                {{/icondata.iscustom}}
+                {{^icondata.iscustom}}
+                    {{#icondata.url}}
+                        <img src="{{{icondata.url}}}" class="activityicon {{icondata.iconclass}}" alt="{{icondata.alt}}" title="{{icondata.alt}}" />
+                    {{/icondata.url}}
+                {{/icondata.iscustom}}
+            </div>
+            <div class="media-body align-self-center">
+                {{#showpluginname}}
+                <div class="text-uppercase small">
+                    {{{pluginname}}}
+                </div>
+                {{/showpluginname}}
+                <div class="activityname">
+                    {{#activityname}}
+                        {{$ core/inplace_editable }}
+                            {{> core/inplace_editable }}
+                        {{/ core/inplace_editable }}
+                    {{/activityname}}
+                </div>
+            </div>
+        </div>
+    </div>
+{{/url}}
