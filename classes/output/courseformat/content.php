@@ -1,36 +1,46 @@
 <?php
+/**
+ * Renderable class for the course content in the alpy course format.
+ *
+ * @package    format_alpy
+ * @copyright  2026 SAVIO - Sistema de Aprendizaje Virtual Interactivo (UTB)
+ * @author     SAVIO Development Team
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace format_alpy\output\courseformat;
 
 use core_courseformat\output\local\content as content_base;
 use renderer_base;
 use stdClass;
 
-class content extends content_base {
+class content extends content_base
+{
 
-    public function export_for_template(renderer_base $output): stdClass {
-        $format = $this->format;
-        $course = $format->get_course();
-        $modinfo = get_fast_modinfo($course);
+    /**
+     * Export this data so it can be used as the context for a mustache template.
+     *
+     * @param renderer_base $output
+     * @return stdClass
+     */
+    public function export_for_template(renderer_base $output): stdClass
+    {
+        $data = parent::export_for_template($output);
 
-        $sections = [];
-        foreach ($modinfo->get_section_info_all() as $sectioninfo) {
-            if (!$sectioninfo || !$sectioninfo->uservisible) {
-                continue;
-            }
+        // Use core weekly CSS classes to preserve default Moodle layout.
+        $data->format = 'weeks';
 
-            $sectionclass = $format->get_output_classname('content\\section');
-            $section = new $sectionclass($format, $sectioninfo);
-
-            $sections[] = $section->export_for_template($output);
-        }
-
-        $data = new stdClass();
-        $data->sections = $sections;
         return $data;
     }
 
-    public function get_template_name(renderer_base $output): string {
-        return 'format_alpy/local/content';
+    /**
+     * Get the template name.
+     *
+     * @param renderer_base $output
+     * @return string
+     */
+    public function get_template_name(renderer_base $output): string
+    {
+        return 'core_courseformat/local/content';
     }
 }
-
