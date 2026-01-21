@@ -1,30 +1,21 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
- * Version details
+ * Version details for the alpy course format.
  *
- * @package    format
- * @subpackage weeks
- * @copyright  1999 onwards Martin Dougiamas (http://dougiamas.com)
+ * @package    format_alpy
+ * @copyright  2026 SAVIO - Sistema de Aprendizaje Virtual Interactivo (UTB)
+ * @author     SAVIO Development Team
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025090301;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2022112800;        // Requires this Moodle version.
-$plugin->component = 'format_alpy';    // Full name of the plugin (used for diagnostics).
+$plugin->version = 2026012000; // YYYYMMDDXX (year, month, day, 2-digit version number).
+$plugin->requires = 2022041900; // Moodle 4.0+
+$plugin->component = 'format_alpy';
+$plugin->maturity = MATURITY_STABLE;
+$plugin->release = '1.0.0';
+
+$plugin->dependencies = [
+    'block_learning_style' => 2026010800,
+];
