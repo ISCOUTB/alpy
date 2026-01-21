@@ -7,7 +7,9 @@ El formato **Alpy** para Moodle personaliza la experiencia de aprendizaje adapta
 - [Funcionalidades](#funcionalidades)
 - [Sección técnica](#sección-técnica)
 - [Instalación](#instalación)
-- [Operación y soporte](#operación-y-soporte)
+- [Consideraciones de despliegue](#consideraciones-de-despliegue)
+- [Contribuciones](#contribuciones)
+- [Equipo de desarrollo](#equipo-de-desarrollo)
 
 ---
 
@@ -20,9 +22,9 @@ El formato **Alpy** para Moodle personaliza la experiencia de aprendizaje adapta
 ### Para docentes
 - **Etiquetado de actividades**: Sistema simple para asignar etiquetas a los módulos mediante el sistema de tags de Moodle.
 - **Configuración de secciones**: Dos modos disponibles:
-  - **Periodo Académico (Automático)**: Crea automáticamente 16 secciones semanales, iniciando el primer lunes de febrero o agosto según el semestre actual.
-  - **Modo Manual**: Permite especificar el número de secciones deseadas.
-- **Recomendación**: Para facilitar el etiquetado de actividades/recursos, se recomienda usar el plugin complementario **alpy_toolkit**.
+   - **Periodo Académico (Automático)**: Crea automáticamente 16 secciones semanales, iniciando el primer lunes de febrero o agosto según el semestre actual.
+   - **Modo Manual**: Permite especificar el número de secciones deseadas.
+- **Recomendación**: Para facilitar el etiquetado de actividades/recursos, se recomienda usar el plugin complementario [**alpy_toolkit**](https://github.com/ISCOUTB/alpy_toolkit/).
 
 ---
 
@@ -99,7 +101,7 @@ El formato ofrece dos modos de configuración durante la creación del curso:
 3. Si el curso es:
     - **Nuevo:** seleccionar el formato **Alpy** al crearlo y configurar el "Modo de configuración de fecha".
     - **Existente:** cambiar el formato en **Administración del curso → Editar ajustes → Formato de curso**. Aquí no se podrá cambiar el modo de configuración de fecha.
-5. (Opcional) Instalar el plugin complementario **alpy_toolkit** para facilitar el etiquetado masivo de actividades.
+5. (Opcional) Instalar el plugin complementario [**alpy_toolkit**](https://github.com/ISCOUTB/alpy_toolkit/) para facilitar el etiquetado masivo de actividades.
 
 ---
 
