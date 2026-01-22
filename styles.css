@@ -36,3 +36,17 @@ img.activityicon.alpy-custom-icon {
         padding: 1px 4px;
     }
 }
+
+/* Custom activity icons styling */
+.alpy-custom-icon-container,
+.activityiconcontainer:has(.alpy-custom-icon) {
+    background-color: #e5f2fe !important;
+    border: 1px solid rgba(40, 130, 211, 0.1); 
+}
+
+.alpy-custom-icon {
+    filter: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0;
+}
