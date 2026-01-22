@@ -99,6 +99,9 @@ class cmname extends core_cmname {
         if (!empty($normalizedIcon['iscustom'])) {
             $existingclass = $data['iconclass'] ?? '';
             $data['iconclass'] = trim($existingclass . ' alpy-custom-icon');
+            
+            // Unset purpose class to prevent Moodle default background colors from appearing
+            $data['purpose'] = '';
         }
 
         // Provide structured icon data for the custom template.
