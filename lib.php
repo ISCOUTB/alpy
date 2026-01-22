@@ -227,13 +227,15 @@ class format_alpy extends core_courseformat\base {
         } else {
             $sectionno = $section;
         }
-        if ((!empty($options['navigation']) || array_key_exists('sr', $options)) && $sectionno !== null) {
-            // Display section on separate page.
-            $sectioninfo = $this->get_section($sectionno);
-            return new moodle_url('/course/section.php', ['id' => $sectioninfo->id]);
+        
+        // Always return to the main course view page with section anchor
+        // instead of redirecting to section.php
+        $url = new moodle_url('/course/view.php', ['id' => $course->id]);
+        if ($sectionno !== null && $sectionno > 0) {
+            $url->set_anchor('section-' . $sectionno);
         }
-
-        return new moodle_url('/course/view.php', ['id' => $course->id]);
+        
+        return $url;
     }
 
     /**
