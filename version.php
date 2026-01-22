@@ -10,11 +10,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2026012000; // YYYYMMDDXX (year, month, day, 2-digit version number).
+$plugin->version = 2026012100; // YYYYMMDDXX (year, month, day, 2-digit version number).
 $plugin->requires = 2022041900; // Moodle 4.0+
 $plugin->component = 'format_alpy';
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '1.0.0';
+$plugin->release = '1.0.1';
 
 $plugin->dependencies = [
     'block_learning_style' => 2026010800,
