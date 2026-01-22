@@ -8,7 +8,7 @@
 {{#url}}
     <div class="activity-instance d-flex flex-column">
         <div class="activitytitle media {{textclasses}} modtype_{{modname}} position-relative align-self-start">
-            <div class="activityiconcontainer {{purpose}} courseicon align-self-start mr-3">
+            <div class="activityiconcontainer {{^icondata.iscustom}}{{purpose}}{{/icondata.iscustom}} courseicon align-self-start mr-3 {{#icondata.iscustom}}alpy-custom-icon-container{{/icondata.iscustom}}">
                 {{#icondata.iscustom}}
                     <img src="{{{icondata.url}}}" class="icon alpy-custom-icon" alt="{{icondata.alt}}" title="{{icondata.alt}}" style="width: 24px; height: 24px;" />
                 {{/icondata.iscustom}}
